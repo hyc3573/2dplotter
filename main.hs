@@ -2,8 +2,9 @@ import Graphics.Implicit
 
 stepperWidth = 42
 stepperHeight = 40
-wallThickness = 2
+wallThickness = 3
 frontWallThickness = 10
+axisGap :: Double
 axisGap = 30
 axisDiameter = 8
 beltWidth = 7
@@ -11,8 +12,13 @@ beltHeight = 17
 sideWalGap = 35
 pullyHoleDiameter :: Double
 pullyHoleDiameter = 5
+mountHoldDiameter :: Double
 mountHoldDiameter = 3
+bearingOuterDiameter = 10 -- Not real value
+moverWidth = 50
+moverLength = 50
 
+quality = 0.5
   
 frontWall = rect3 (V3 0 0 0) (V3
                           (stepperHeight * 2 + axisGap)
@@ -75,6 +81,21 @@ noStepperSide = let wall1 =
                       cylinder
                       (pullyHoleDiameter/2) (stepperHeight*3)
                 in union [front, union [wall1, wall2] `difference` [hole]]
-  
-main = do writeSTL 2 "stepperside.stl" stepperSide
-          writeSTL 2 "nostepperside.stl" noStepperSide
+
+mover = let plate = cube True (V3 moverWidth wallThickness moverLength)
+            bearingHoleOuter = trans $
+              cylinder (bearingOuterDiameter/2+wallThickness) moverLength
+            bearingHoleInner = trans $
+              cylinder (bearingOuterDiameter/2) moverLength
+
+        in union (plate:offseted bearingHoleOuter offset) `difference`
+           offseted bearingHoleInner offset
+
+  where trans = translate (V3 0 (-bearingOuterDiameter/2-wallThickness/2) (-moverLength/2))
+        offset = [V3 (- axisGap / 2) 0 0, V3 (axisGap / 2) 0 0]
+        offseted obj offset = fmap (`translate` obj) offset
+
+
+main = do writeSTL quality "stepperside.stl" stepperSide
+          writeSTL quality "nostepperside.stl" noStepperSide
+          writeSTL quality "mover.stl" mover
