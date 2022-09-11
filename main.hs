@@ -37,16 +37,18 @@ front = difference frontWall [frontHole]
 sideWall = V3
            (-wallThickness)
            0
-           (-stepperWidth-wallThickness)
+           (-stepperWidth-wallThickness*2)
            `rect3`
            V3
            0
            (stepperWidth+wallThickness*2)
            frontWallThickness
 
-stepperMountHole = let hole = translate (V3 (-10) 0 0) $ rotate3V (pi/2) (V3 0 1 0) $ cylinder (mountHoldDiameter/2) 150
+stepperMountHole = let hole = translate (V3 (-10) wallThickness (-wallThickness)) $ rotate3V (pi/2) (V3 0 1 0) $ cylinder (mountHoldDiameter/2) 150
                    in union $ fmap (flip translate $ hole) [ V3 0 0 0
-                                                           , V3 0 10 10]
+                                                           , V3 0 0 (-stepperWidth)
+                                                           , V3 0 stepperWidth (-stepperWidth)
+                                                           , V3 0 stepperWidth 0]
 
 stepperSide :: SymbolicObj3
 stepperSide = let sideWall2 =
@@ -55,8 +57,7 @@ stepperSide = let sideWall2 =
                     sideWall
               in union [ front
                        , sideWall
-                       , sideWall2
-                       , stepperMountHole] `difference` []
+                       , sideWall2] `difference` [stepperMountHole]
 noStepperSide = let wall1 =
                       V3 (stepperHeight-axisDiameter/2) 0 0
                       `translate`
