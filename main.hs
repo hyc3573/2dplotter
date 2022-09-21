@@ -18,7 +18,7 @@ bearingOuterDiameter = 10 -- Not real value
 moverWidth = 50
 moverLength = 50
 
-quality = 0.5
+quality = 2
   
 frontWall = rect3 (V3 0 0 0) (V3
                           (stepperHeight * 2 + axisGap)
@@ -95,7 +95,9 @@ mover = let plate = cube True (V3 moverWidth wallThickness moverLength)
         offset = [V3 (- axisGap / 2) 0 0, V3 (axisGap / 2) 0 0]
         offseted obj offset = fmap (`translate` obj) offset
 
+sawtooth = extrudeM (Left 0) (C1 1) (Right (\x->(V2 0 (sin pi*x/8)))) (square True (V2 10 10)) (Left 20)
 
 main = do writeSTL quality "stepperside.stl" stepperSide
           writeSTL quality "nostepperside.stl" noStepperSide
           writeSTL quality "mover.stl" mover
+          writeSTL quality "sawtooth.stl" sawtooth
